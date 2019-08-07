@@ -9,6 +9,7 @@ export default function Aue(options) {
   const vm = this;
   const opts = (vm.$options = options);
 
+  // 编译模板
   compile(vm);
 
   if(opts.methods) {
