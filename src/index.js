@@ -1,3 +1,16 @@
+/*
+ * @Describe: 模拟实现vue的功能
+ * @Author: minzhang
+ * @Date: 2019-08-08 14:56:57
+ * @Last Modified by: minzhang
+ * @Last Modified time: 2019-08-08 14:58:27
+ *
+ * 1.simple compile
+ * 2.simple render
+ * 3.simple observe
+ * 4.todo
+ *
+ */
 import Aue from "./aue";
 
 const template =
