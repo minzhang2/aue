@@ -1,3 +1,4 @@
+import './global';
 import { warn } from './utils';
 import compile from './compile'
 import initData from './observe'
@@ -7,6 +8,7 @@ export default function Aue(options) {
   if(!(this instanceof Aue)) {
     warn('please use new init Aue');
   }
+
 
   const vm = this;
   const opts = (vm.$options = options);

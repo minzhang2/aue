@@ -3,7 +3,7 @@
  * @Author: minzhang
  * @Date: 2019-08-08 14:56:57
  * @Last Modified by: minzhang
- * @Last Modified time: 2019-08-08 14:58:27
+ * @Last Modified time: 2019-08-08 15:52:09
  *
  * 1.simple compile
  * 2.simple render
@@ -17,7 +17,7 @@ const template =
   '<div :attr="aa" class="wrap" id="root" style="color: red" onClick="alert(2)">' +
   '<p><dl><dd></dd><dt><img/><i>43536</i></dt></dl></p>' +
   '<b><input/></b>' +
-  '<span>43536{{aaa}}ee<{{bbb}}e</span>' +
+  '<span>43536{{aaa}}ee<{{bbb}}e{{arr[3].b}}</span>' +
   '</div>';
 
 const template1 = '<div><i>234</i></div>'
@@ -33,6 +33,7 @@ window.app = new Aue({
       }
     },
     aaa: 'basgag',
-    bbb: 'sftwwt'
+    bbb: 'sftwwt',
+    arr: [2,3,{s: 1}, {b: 4}]
   }
 });

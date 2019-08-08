@@ -1,10 +1,11 @@
-import { isObject } from './utils'
+import { isObject } from './utils';
+import { arrayMethods } from './global'
 
 export default function initData(vm) {
   const opts = vm.$options;
   let data;
   vm._data = data = opts.data;
-  if(typeof data === 'function') {
+  if (typeof data === 'function') {
     data = data();
   }
 
@@ -12,18 +13,19 @@ export default function initData(vm) {
   proxyData(vm, data);
 }
 
-function observe(data) {
-  if(Array.isArray(data)) {
+ export function observe(data) {
+  if (Array.isArray(data)) {
     observeArray(data);
   } else {
-    for(let key in data) {
+    for (let key in data) {
       defineReactive(data, key, data[key]);
     }
   }
 }
 
 function observeArray(obj) {
-
+  proxyArray(obj);
+  obj.forEach(value => isObject(value) && observe(value));
 }
 
 function defineReactive(obj, key, value) {
@@ -33,7 +35,7 @@ function defineReactive(obj, key, value) {
       return value;
     },
     set(newVal) {
-      if(newVal !== value) {
+      if (newVal !== value) {
         isObject(newVal) && observe(newVal);
         obj[key] = value = newVal;
       }
@@ -42,7 +44,11 @@ function defineReactive(obj, key, value) {
 }
 
 function proxyData(vm, data) {
-  for(let key in data) {
+  for (let key in data) {
     defineReactive(vm, key, data[key]);
   }
+}
+
+function proxyArray(obj) {
+  obj.__proto__ = arrayMethods;
 }

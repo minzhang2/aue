@@ -22,5 +22,5 @@ export function createText(text) {
 }
 
 export function toString(val) {
-  return val.toString();
+  return val == null ? '' : val.toString();
 }

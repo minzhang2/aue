@@ -7,5 +7,9 @@ function toString(obj) {
 }
 
 export function isObject(obj) {
+  return typeof obj === 'object';
+}
+
+export function isPlainObject(obj) {
   return toString(obj) === 'Object';
 }
