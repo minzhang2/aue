@@ -1,3 +1,5 @@
+const stringify = JSON.stringify;
+
 export default function compile(vm) {
   const opts = vm.$options;
   const defaultTemplate = "<div></div>";
@@ -13,31 +15,18 @@ export default function compile(vm) {
 
   const code = codeGen(ast);
 
-  const context = {
-    createElement(tag, attrs, children) {
-      const ele = document.createElement(tag);
-      if(attrs) {
-        Object.keys(attrs).forEach(value => ele.setAttribute(value, attrs[value]))
-      }
-      if(children) {
-        for(let i = 0; i < children.length; i++) {
-          ele.append(children[i])
-        }
-      }
-      return ele;
-    },
-    createText(text) {
-      return document.createTextNode(text);
-    }
+  const render = new Function(`with(this){ return ${code}}`);
+
+  opts.ast = ast;
+  opts.render = render;
+
+  console.log(ast, code, render);
+
+  return {
+    code,
+    ast,
+    render
   };
-
-  const fn = new Function(`with(this){ return ${code}}`).bind(context);
-
-  const dom = fn();
-
-  document.body.append(dom)
-
-  console.log(ast, code, dom);
 }
 
 function parse(vm) {
@@ -167,13 +156,25 @@ function parse(vm) {
           tokens.push({
             exp: expTag[1]
           });
+
           text = text.slice(textCurr);
         } else {
           tokens.push(text);
           text = "";
         }
       }
+
+      let expression = "";
+      for (let i = 0; i < tokens.length; i++) {
+        const value = tokens[i];
+        expression +=
+          typeof value === "object"
+            ? `_s(${value.exp})+`
+            : `${stringify(value)}+`;
+      }
+
       node.tokens = tokens;
+      node.expression = expression.replace(/\+$/, "");
       (element.children = element.children || []).push(node);
       node.end = curr;
     }
@@ -200,16 +201,15 @@ function parse(vm) {
 }
 
 function codeGen(node) {
-  const stringify = JSON.stringify;
-
   return genElement(node);
 
   function genElement(node) {
     let str = "";
-    const { type, tag, attrs, children, text } = node;
+    const { type, tag, attrs, children, expression } = node;
 
-    if (type === 1) { // 元素标签
-      str += `createElement(${stringify(tag)},`;
+    if (type === 1) {
+      // 元素标签
+      str += `_c(${stringify(tag)},`;
 
       if (attrs) {
         str += genAttr(attrs);
@@ -217,29 +217,30 @@ function codeGen(node) {
       if (children) {
         str += genChildren(children);
       }
-    } else if(type === 3) { // 文本标签
-      str += `createText(${stringify(text)}`
+    } else if (type === 3) {
+      // 文本标签
+      str += `_t(${expression}`;
     }
 
-    return `${str.replace(/,$/, '')})`;
+    return `${str.replace(/,$/, "")})`;
   }
 
   function genAttr(attrs) {
-    let str = '';
+    let str = "";
 
-    for(let i = 0; i < attrs.length; i++) {
+    for (let i = 0; i < attrs.length; i++) {
       const { name, value } = attrs[i];
       str += `${stringify(name)}:${stringify(value)},`;
     }
 
-    return `{${str.replace(/,$/, '')}},`;
+    return `{${str.replace(/,$/, "")}},`;
   }
 
   function genChildren(children) {
-    let str = '';
+    let str = "";
     for (let i = 0; i < children.length; i++) {
       str += `${genElement(children[i])},`;
     }
-    return `[${str.replace(/,$/, '')}]`;
+    return `[${str.replace(/,$/, "")}]`;
   }
 }

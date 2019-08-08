@@ -1,5 +1,7 @@
 import { warn } from './utils';
 import compile from './compile'
+import initData from './observe'
+import initRender from './render'
 
 export default function Aue(options) {
   if(!(this instanceof Aue)) {
@@ -10,7 +12,7 @@ export default function Aue(options) {
   const opts = (vm.$options = options);
 
   // 编译模板
-  compile(vm);
+  const { ast, code, render } = compile(vm);
 
   if(opts.methods) {
     initMethods(vm);
@@ -24,4 +26,9 @@ export default function Aue(options) {
   if (opts.watch) {
     initWatch(vm);
   }
+
+  initRender(vm);
+
+  const dom = render.call(vm);
+  document.body.append(dom);
 }
